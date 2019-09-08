@@ -63,7 +63,6 @@ while(<F>){
     print OUT "#PBS -V\n";
     print OUT "#PBS -M shihcheng.guo\@gmail.com \n";
     print OUT "#PBS -m abe\n";
-    print OUT "#PBS -A k4zhang-group\n";
     print OUT "cd $curr_dir\n";    
 
     my $extractor="bismark_methylation_extractor --no_overlap --multicore $multicore --merge_non_CpG --bedGraph --cutoff 5 --ignore 1 --buffer_size 4G";
