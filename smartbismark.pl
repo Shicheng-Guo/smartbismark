@@ -17,12 +17,12 @@ my $dir=getcwd;
 my ($input,$genome,$server,$BismarkRefereDb,$queue,$phred,$help,$submit,$nodes,$ppn,$walltime,$multicore)=process_command_line();
 my $sed=directory_build();
 
-open SRR,$input;
+open SRR,$input || die "cannot open $input\n";
 my %SRR; my %SRA;
 while(<SRR>){
     chomp;
     next if /^\s+$/;
-	next if /sample_accession/i;
+	next if /sample_accession|BioProject/i;
 	my $SRR;
 	if(/(SRR\d+)/){
 	$SRR=$1;
@@ -35,7 +35,7 @@ while(<SRR>){
 	}	
 close SRR;
 	
-my @read = glob("$SRR*fastq*gz");
+my @read = glob("$SRR*fastq.gz");
 my $chrLenhg19="~/hpc/db/hg19/hg19.chrom.sizes";
 my $cpgPoshg19="~/hpc/db/hg19/HsGenome19.CpG.positions.txt"; 
 my $curr_dir = $dir;
@@ -289,6 +289,7 @@ VERSION
 
 sub directory_build{
 chdir getcwd;
+print "===================================================================================\n";
 mkdir "../fastq_trim" if ! -e "../fastq_trim" || print  "fastq_trim     Building Succeed!  <Trimed Fastq>     stored here\n";
 mkdir "../bam" if ! -e "../bam"               || print  "bam            Building Succeed!    <Bam Files>      stored here\n";
 mkdir "../bedgraph" if ! -e "../bedgraph"     || print  "bedgraph       Building Succeed!  <Bedgraph Files>   stored here\n";
@@ -298,6 +299,7 @@ mkdir "../bedgraph" if ! -e "../bedgraph"     || print  "bedgraph       Building
 mkdir "../bw" if ! -e "../bw"                 || print  "bigwig         Building Succeed!  <BigWig Files>     stored here\n";
 mkdir "./tmp/" if ! -e "./tmp/"               || print  "tmp            Building Succeed!  <tmp Files>        stored here\n";
 mkdir "./hapinfo/" if ! -e "./hapinfo/"       || print  "hapinfo        Building Succeed!  <hapinfo Files>    stored here\n";
+print "===================================================================================\n";
 }
 
 sub bismark_version{
