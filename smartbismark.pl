@@ -5,7 +5,8 @@
 # Version 1.3
 # Update: 09/08/2019
 # smartbismark.pl 
-# USAGE: smartbismark --input saminfo.txt --genome hg19 --server TSCC/MCRI --submit
+# USAGE: perl smartbismark.pl --input SraRunTable.txt --genome hg19 --phred=33 --server MCRI --queue shortq --BismarkRefereDb = --submit 
+
 
 
 use strict;
@@ -187,13 +188,13 @@ sub process_command_line{
 		$BismarkRefereDb="~/hpc/db/hg19/bismark";
 		print "Bismark alignment reference: BismarkRefereDb\n";
 		}elsif($genome=="hg38"){
-		$BismarkRefereDb="/home/shg047/db/hg38/bismark/";
+		$BismarkRefereDb="~/hpc/db/hg38/bismark/";
 		print "Bismark alignment reference: BismarkRefereDb\n";
 		}elsif($genome eq "mm9"){
-		$BismarkRefereDb="/home/shg047/db/mm9/bismark/";
+		$BismarkRefereDb="~/hpc/db/mm9/bismark/";
 		print "Bismark alignment reference: BismarkRefereDb\n";
 		}elsif($genome eq "mm10"){
-    	        $BismarkRefereDb="/home/shg047/db/mm10/bismark/";
+    	        $BismarkRefereDb="~/hpc/db/mm10/bismark/";
 				print "Bismark alignment reference: BismarkRefereDb\n";
 		}else{
 				warn("Please assign genome version (in Genome-miner)to the script: hg19? hg38? mm9? mm10?");	
