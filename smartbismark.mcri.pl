@@ -5,9 +5,7 @@
 # Version 1.3
 # Update: 09/08/2019
 # smartbismark.pl 
-# USAGE: perl smartbismark.pl --input SraRunTable.txt --genome hg19 --phred=33 --server MCRI --queue shortq --BismarkRefereDb = --submit 
-
-
+# USAGE: perl smartbismark.pl --input SraRunTable.txt --genome hg19 --phred 33 --server MCRI --queue longq --submit no
 
 use strict;
 use Cwd;
@@ -17,7 +15,7 @@ my $dir=getcwd;
 my ($input,$genome,$server,$BismarkRefereDb,$queue,$phred,$help,$submit,$nodes,$ppn,$walltime,$multicore)=process_command_line();
 my $sed=directory_build();
 
-open SRR,$input || die "cannot open $input\n";
+open SRR,$input || die("Error in opening file $input.\n");   ;
 my %SRR; my %SRA;
 while(<SRR>){
     chomp;
@@ -29,13 +27,10 @@ while(<SRR>){
 	if(/(SRX\d+)/){
 		my $SRX=$1;
 		$SRR{$SRR}=$SRR;
-		print "$SRR\t$SRX\t$SRR.bismark.job\n";
 		push @{$SRA{$SRX}},$SRR;
 		}
-	}	
-close SRR;
-	
-my @read = glob("$SRR*fastq.gz");
+	}		
+my @read = glob("$SRR*fastq*gz");
 my $chrLenhg19="~/hpc/db/hg19/hg19.chrom.sizes";
 my $cpgPoshg19="~/hpc/db/hg19/HsGenome19.CpG.positions.txt"; 
 my $curr_dir = $dir;
@@ -55,7 +50,7 @@ print OUT "#PBS -l walltime=$walltime\n";
 print OUT "#PBS -o $sample.log\n";
 print OUT "#PBS -e $sample.err\n";
 print OUT "#PBS -V\n";
-print OUT "#PBS -M shihcheng.guo\@gmail.com \n";
+print OUT "#PBS -M Guo.Shicheng\@marshfieldresearch.org\n";
 print OUT "#PBS -m abe\n";
 print OUT "cd $curr_dir\n";    
 
@@ -63,7 +58,7 @@ my $extractor="bismark_methylation_extractor --no_overlap --multicore $multicore
 my $bismark="bismark --bowtie2 --multicore $multicore --fastq -N 1"; 
 my $coverage2cytosine="coverage2cytosine --merge_CpG --gzip --genome_folder";
     
-print OUT "fastq-dump --skip-technical --split-files --gzip $SRR\n";
+print OUT "# fastq-dump --skip-technical --split-files --gzip $SRR\n";
 print OUT "trim_galore --paired --phred$phred --clip_R1 3 --clip_R2 6 --fastqc --illumina $sample1\.fastq.gz $sample2\.fastq.gz --output_dir ../fastq_trim\n";
 print OUT "$bismark --phred$phred-quals $BismarkRefereDb -1 ../fastq_trim/$sample1\_val_1.fq.gz -2 ../fastq_trim/$sample2\_val_2.fq.gz -o ../bam\n";
 print OUT "filter_non_conversion --paired ../bam/$sample1\_val_1_bismark_bt2_pe.bam\n";
@@ -124,6 +119,7 @@ sub process_command_line{
 	my %multicore;
 	my $nodes;
     my $BismarkRefereDb;
+	my $phred;
     
 	my $command_line=GetOptions ( 
                                   "input=s"    		    => \$input,
@@ -143,10 +139,13 @@ sub process_command_line{
     #################################################################################################
     ##################### SmartBismark Version and Usage (Version and Usage) ########################
     #################################################################################################
-    if ($help){
+    if($help){
     print_helpfile();
     exit;
     }   
+    if(! defined $phred){
+	 $phred=33;
+	}
     #################################################################################################
     ##################### Assemble Bismark Reference (hg19,hg38,mm9,mm10) ##########################
     #################################################################################################
@@ -154,57 +153,57 @@ sub process_command_line{
     if($server eq "TSCC"){
     	if($genome eq "hg19"){
     	$BismarkRefereDb="/home/shg047/db/hg19/bismark/";
-		print "Bismark alignment reference: BismarkRefereDb\n";
+		print "Bismark alignment reference: $BismarkRefereDb\n";
 		}elsif($genome eq "hg38"){
 		$BismarkRefereDb="/home/shg047/db/hg38/bismark/";
-		print "Bismark alignment reference: BismarkRefereDb\n";
+		print "Bismark alignment reference: $BismarkRefereDb\n";
 		}elsif($genome eq "mm9"){
 		$BismarkRefereDb="/home/shg047/oasis/db/mm9/bismark";
-		print "Bismark alignment reference: BismarkRefereDb\n";
+		print "Bismark alignment reference: $BismarkRefereDb\n";
 		}elsif($genome eq "mm10"){
 		$BismarkRefereDb="/home/shg047/oasis/db/mm10/bismark";
-		print "Bismark alignment reference: BismarkRefereDb\n";
+		print "Bismark alignment reference: $BismarkRefereDb\n";
 		}else{
 		warn("Please assign genome version (in TSCC)to the script: hg19? hg38? mm9? mm10?");	
 		}
     }elsif($server eq "GM"){
 		if($genome eq "hg19"){
 		$BismarkRefereDb="/media/Home_Raid1/shg047/db/hg19/bismark";
-		print "Bismark alignment reference: BismarkRefereDb\n";
+		print "Bismark alignment reference: $BismarkRefereDb\n";
 		}elsif($genome=="hg38"){
 		$BismarkRefereDb="/home/shg047/db/hg38/bismark/";
-		print "Bismark alignment reference: BismarkRefereDb\n";
+		print "Bismark alignment reference: $BismarkRefereDb\n";
 		}elsif($genome eq "mm9"){
 		$BismarkRefereDb="/home/shg047/db/mm9/bismark/";
-		print "Bismark alignment reference: BismarkRefereDb\n";
+		print "Bismark alignment reference: $BismarkRefereDb\n";
 		}elsif($genome eq "mm10"){
     	        $BismarkRefereDb="/home/shg047/db/mm10/bismark/";
-		print "Bismark alignment reference: BismarkRefereDb\n";
+		print "Bismark alignment reference: $BismarkRefereDb\n";
 		}else{
 		warn("Please assign genome version (in Genome-miner)to the script: hg19? hg38? mm9? mm10?");	
 		}
 	}elsif($server eq "MCRI"){
 		if($genome eq "hg19"){
 		$BismarkRefereDb="~/hpc/db/hg19/bismark";
-		print "Bismark alignment reference: BismarkRefereDb\n";
+		print "Bismark alignment reference: $BismarkRefereDb\n";
 		}elsif($genome=="hg38"){
 		$BismarkRefereDb="~/hpc/db/hg38/bismark/";
-		print "Bismark alignment reference: BismarkRefereDb\n";
+		print "Bismark alignment reference: $BismarkRefereDb\n";
 		}elsif($genome eq "mm9"){
 		$BismarkRefereDb="~/hpc/db/mm9/bismark/";
-		print "Bismark alignment reference: BismarkRefereDb\n";
+		print "Bismark alignment reference: $BismarkRefereDb\n";
 		}elsif($genome eq "mm10"){
     	        $BismarkRefereDb="~/hpc/db/mm10/bismark/";
-				print "Bismark alignment reference: BismarkRefereDb\n";
+				print "Bismark alignment reference: $BismarkRefereDb\n";
 		}else{
 				warn("Please assign genome version (in Genome-miner)to the script: hg19? hg38? mm9? mm10?");	
 		}
 	}else{
         print "Please check the server name or build corresponding reference for server:$server\n";
 	}
-}
+	}
     #################################################################################################
-    ##################### Assemble PBS Paramters (nodes, ppn, walltime multicore) ##########################
+    ##################### Assemble PBS Paramters (nodes, ppn, walltime multicore) ###################
     #################################################################################################
     warn "\nYou didn't assign --queue for the script, the default setting: multicore=2 and ppn=6 will be applied!\n\n" if ! defined $queue; 
     $queue="hotel" if ! defined $queue;
@@ -214,6 +213,8 @@ sub process_command_line{
     pdafm   => "72:00:00",
     glean   => "72:00:00",
     default => "168:00:00",
+    shortq => "240:00:00",
+    longq => "480:00:00",
     );
     %ppn=(
     hotel   => "16",
@@ -221,6 +222,8 @@ sub process_command_line{
     glean   => "16",
     condo   => "16",
     default => "6",
+	shortq  => "6",
+	longq   => "12",
     );
     %multicore=(
     hotel   => "6",
@@ -228,14 +231,16 @@ sub process_command_line{
     glean   => "6",
     condo   => "6",
     default => "2",
+	shortq  => "2",
+	longq   => "4",
     );
     warn "Queue: $queue is not found in this server, please check the queue name\n" if ! defined $ppn{$queue}; 
+    warn "Queue: $multicore is not found in this server, please check the queue name\n" if ! defined $multicore{$queue}; 
     $nodes=1;
     $ppn=$ppn{$queue};
     $walltime=$walltime{$queue};
     $multicore=$multicore{$queue};
-
-    return($input,$genome,$server,$BismarkRefereDb,$queue,$help,$submit,$nodes,$ppn,$walltime,$multicore);
+    return($input,$genome,$server,$BismarkRefereDb,$queue,$phred,$help,$submit,$nodes,$ppn,$walltime,$multicore);
 }
 
 
@@ -301,7 +306,6 @@ mkdir "./tmp/" if ! -e "./tmp/"               || print  "tmp            Building
 mkdir "./hapinfo/" if ! -e "./hapinfo/"       || print  "hapinfo        Building Succeed!  <hapinfo Files>    stored here\n";
 print "===================================================================================\n";
 }
-
 sub bismark_version{
 	my @version=`bismark --version`;
 	my $bismark_version;
