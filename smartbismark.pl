@@ -277,7 +277,7 @@ my $bismark_version=bismark_version();
                        SmartBismark Version: $smartbismark_version
                           Bismark Version: $bismark_version
                            
-        Copyright 2010-15 Shicheng Guo, University of California, San Diego
+        Copyright 2010-15 Shicheng Guo, University of Wisconsin at Madison (UW-Madison)
 
 VERSION
     exit;
