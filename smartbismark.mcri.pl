@@ -5,7 +5,9 @@
 # Version 1.3
 # Update: 09/08/2019
 # smartbismark.pl 
-# USAGE: perl smartbismark.pl --input SraRunTable.txt --genome hg19 --phred 33 --server MCRI --queue longq --submit no
+# USAGE: perl smartbismark.pl --input SraRunTable.txt --genome hg19 --phred=33 --server MCRI --queue shortq --BismarkRefereDb = --submit 
+
+
 
 use strict;
 use Cwd;
@@ -42,14 +44,10 @@ my($sample2,undef)=split /.fastq.gz/,$read[1];
 my $job_file_name = "$SRR.pbs";
 open(OUT, ">$job_file_name") || die("Error in opening file $job_file_name.\n");   
     
-print OUT "#!/bin/csh\n";
+print OUT "#!/bin/bash\n";
 print OUT "#PBS -N $sample\n";
-print OUT "#PBS -q $queue\n";  # glean is free
+print OUT "#PBS -q $queue\n";
 print OUT "#PBS -l nodes=$nodes:ppn=$ppn\n";
-print OUT "#PBS -l walltime=$walltime\n";
-print OUT "#PBS -o $sample.log\n";
-print OUT "#PBS -e $sample.err\n";
-print OUT "#PBS -V\n";
 print OUT "#PBS -M Guo.Shicheng\@marshfieldresearch.org\n";
 print OUT "#PBS -m abe\n";
 print OUT "cd $curr_dir\n";    
